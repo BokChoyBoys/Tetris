@@ -22,27 +22,26 @@ def newshape(event):
     for x in range(4):
         board[shapepoints[shapetype][x] // 4 + dy][shapepoints[shapetype][x] % 4 + dx + 3] = 0 - shapetype - 1
     #for
-    if rowfilled(19):
-        for r in range(boardheight):
-            for c in range(boardwidth):
-                canvas.delete(shapeboard[r][c])
-        shapeboard = np.delete(shapeboard,19,0)
-        newrow2 = np.ndarray((1,boardwidth),dtype=PhotoImage)
-        shapeboard = np.concatenate((newrow2,shapeboard),axis=0)
-        for r in range(boardheight):
-            for c in range(boardwidth):
-                if shapeboard[r][c] != None and board[r][c] != 0:
-                    print(-2-board[r][c])
-                    canvas.create_image(c * size,r * size,anchor=NW,image=shapesimg[int(-1-board[r][c])])
-
-        board = np.delete(board,19,0)
-        newrow = np.zeros((1,boardwidth))
-        board = np.concatenate((newrow, board), axis=0)
-        print(board)
+    for x in range(20):
+        if rowfilled(x):
+            for r in range(boardheight):
+                for c in range(boardwidth):
+                    canvas.delete(shapeboard[r][c])
+            shapeboard = np.delete(shapeboard,x,0)
+            newrow2 = np.ndarray((1,boardwidth),dtype=PhotoImage)
+            shapeboard = np.concatenate((newrow2,shapeboard),axis=0)
+            print(shapeboard)
+            board = np.delete(board,x,0)
+            newrow = np.zeros((1,boardwidth))
+            board = np.concatenate((newrow, board), axis=0)
+            print(board)
+            for r in range(boardheight):
+                for c in range(boardwidth):
+                    if shapeboard[r][c] != None:
+                        shapeboard[r][c] = canvas.create_image(c * size,r * size,anchor=NW,image=shapesimg[int(-1-board[r][c])])
     dy = 0
     dx = 0
-    print(shapeboard)
-    shapetype = nextshape
+    shapetype = 0
     for s in nextshapes:
         canvas.delete(s)
     nextshape = random.randint(0,6)
