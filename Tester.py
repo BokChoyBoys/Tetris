@@ -10,21 +10,21 @@ from PIL import Image, ImageTk
 import json
 
 #version: 1.4
-#finish rotation
+#fix I spawn
 #work on drawing score and ai
 
 def newshape(event,holding):
-    global shapes,dy,dx,shapetype,board,nextshape,nextshapes,shapeboard,held,holdshapes,gameplaying,degree,score,totalrowsfilled,level,delay
+    global shapes,dy,dx,shapetype,board,nextshape,nextshapes,shapeboard,held,holdshapes,gameplaying,degree,score,totalrowsfilled,level,delay,fx
     if not holding:
         held = False
         for x in range(4):
             canvas.delete(shapes[x])
-            shapeboard[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 3] = canvas.create_image(
-                (shapepoints[degree][shapetype][x] % 4 + dx + 3) * size,
-                (shapepoints[degree][shapetype][x] // 4 + dy) * size, anchor=NW,
+            shapeboard[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = canvas.create_image(
+                (shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]) * size,
+                (shapepoints[degree][shapetype][x] // 4 + dy + fx[1]) * size, anchor=NW,
                 image=shapesimg[shapetype])
         for x in range(4):
-            board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 3] = 0 - shapetype - 1
+            board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = 0 - shapetype - 1
            # print(x)
         rowsfillednum = 0
         for x in range(boardheight):
@@ -60,11 +60,12 @@ def newshape(event,holding):
         elif rowsfillednum == 4:
             score += 800
         #print(score)
-        shapetype = nextshape
+        shapetype = 1
         nextshape = random.randint(0, 6)
     dy = 0
     dx = 0
     degree = 0
+    fx = np.array([0, 0])
     for x in range(4):
         if not board[shapepoints[degree][shapetype][x] // 4][shapepoints[degree][shapetype][x] % 4 + 3] >= 0:
             gameplaying = False
@@ -99,6 +100,7 @@ def newshape(event,holding):
                 canvas.create_image((shapepoints[degree][holdshape][x] % 4 + 11) * size,
                                     (shapepoints[degree][holdshape][x] // 4 + 3) * size,
                                     anchor=NW, image=shapesimg[holdshape]))
+
     shapes = []
     for x in range(4):
         shapes.append(
@@ -125,12 +127,18 @@ def updatescore():
     scoreimage = canvas.create_text(500,750,fill="darkblue",font="Times 20 italic bold",
                         text=str(score))
 def move(event):
-    global i,dy,dx,degree
-    print(board)
+    global i,dy,dx,degree,fx
+   # print(board)
     if not gameplaying:
         return
     if event.keysym == "Up":
-        rotate(True)
+        if rotatevalid():
+            print("here")
+            rotate(True)
+        #elif offset():
+           # print("here2")
+            #rotate(True)
+            #fx = np.array([0, 0])
     elif event.keysym == "Down":
         #down another if
         if valid(1):
@@ -145,9 +153,10 @@ def move(event):
             rightinput()
 
 def downinput(pressed):
-    global dy,score
+    global dy,score,fx
     score += 1
     updatescore()
+    #fx = np.array([0, 0])
     if not gameplaying:
         return
     if not valid(1):
@@ -159,18 +168,18 @@ def downinput(pressed):
         canvas.delete(s)
 
     for x in range(4):
-        if shapepoints[degree][shapetype][x] // 4 + dy-1 != -1:
-            board[shapepoints[degree][shapetype][x] // 4 + dy-1][shapepoints[degree][shapetype][x] % 4 + dx + 3] = 0
+        if shapepoints[degree][shapetype][x] // 4 + dy-1 + fx[1] != -1:
+            board[shapepoints[degree][shapetype][x] // 4 + dy-1 + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = 0
 
     for x in range(4):
-        board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 3] = shapetype + 1
+        board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = shapetype + 1
 
     for x in range(4):
-        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3) * size, (shapepoints[degree][shapetype][x] // 4 + dy) * size, anchor=NW,
+        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]) * size, (shapepoints[degree][shapetype][x] // 4 + dy + fx[1]) * size, anchor=NW,
                              image=shapesimg[shapetype])
     if not pressed:
         win.after(int(delay),downinput,False)
-    #print(board)
+    print(board)
 
 def leftinput():
     global dx
@@ -179,16 +188,16 @@ def leftinput():
     dx -= 1
 
     for x in range(4):
-        board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 1+ 3] = 0
+        board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 1+ 3 + fx[0]] = 0
 
     for x in range(4):
-        board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 3] = shapetype + 1
+        board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = shapetype + 1
 
     for x in range(4):
-        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3) * size,
-                                            (shapepoints[degree][shapetype][x] // 4 + dy) * size, anchor=NW,
+        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]) * size,
+                                            (shapepoints[degree][shapetype][x] // 4 + dy + fx[1]) * size, anchor=NW,
                                             image=shapesimg[shapetype])
-    #print(board)
+    print(board)
 
 def rightinput():
     global dx
@@ -197,83 +206,111 @@ def rightinput():
     dx += 1
 
     for x in range(4):
-        board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx - 1 + 3] = 0
+        board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx - 1 + 3 + fx[0]] = 0
 
     for x in range(4):
-        board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + dx + 3] = shapetype + 1
+        board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = shapetype + 1
 
     for x in range(4):
-        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3) * size,
-                                            (shapepoints[degree][shapetype][x] // 4 + dy) * size, anchor=NW,
+        shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]) * size,
+                                            (shapepoints[degree][shapetype][x] // 4 + dy + fx[1]) * size, anchor=NW,
                                             image=shapesimg[shapetype])
-    #print(board)
+    print(board)
+
+def rotatevalid():#points,offset):
+    if shapetype == 0:
+        return
+    for x in range(4):
+        newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0] + fxx[0]) * size
+        newy = (shapepoints[degree][shapetype][x] // 4 + dy + fx[1] + fxx[1]) * size
+        #print(fx[0])
+        a = np.array([[newx], [newy]])
+        p = np.array([[(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] % 4 + dx + 3 + fx[0] + fxx[0]) * size],
+                      [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy + fx[1] + fxx[1]) * size]])
+        # print(p)
+        a = a - p
+        b = np.array([[0, -1], [1, 0]])
+        c = np.dot(b, a) + p
+        if shapetype == 3:
+            if degree == 0:
+                c[1][0] += 40
+            elif degree == 1:
+                c[0][0] -= 40
+            elif degree == 2:
+                c[0][0] -= 40
+            elif degree == 3:
+                c[1][0] -= 40
+        if c[0][0] > 399 or c[0][0] < -1:
+            print("11")
+            return False
+        if c[1][0] > 799 or c[1][0] < -1:
+            print("22")
+            return False
+        if board[int(c[1][0] / 40)][int(c[0][0] / 40)] < 0:
+            print("33")
+            return False
+    return True
+    #for x in range(4):
+        #px = points[0]
+        #py = points[1]
+        #if not offset:
+          #  px /= size
+          #  py /= size
+      #  if shapepoints[degree][shapetype][x] // 4 + py / size > boardheight - 1:
+         #   print("1")
+         #   return False
+    #    if shapepoints[degree][shapetype][x] % 4 + px + 2 < -1 or shapepoints[degree][shapetype][x] % 4 + px + 1 > 7:
+          #  print("2")
+          #  return False
+   # return True
+
+
+
+def offset():
+    global rotationdx,canrotate,fx,dx,fxx
+    lastdx = rotationdx
+    rotationdx += 1
+    rotationdx %= 4
+    offsetdata = []
+    fxx = fx
+    if shapetype == 3:
+        offsetdata = offsetI
+    else:
+        offsetdata = offsetnormal
+    for x in range(5):
+        bx = np.array([offsetdata[x][lastdx][0],offsetdata[x][lastdx][1]])
+        #print(bx)
+        cx = np.array([offsetdata[x][rotationdx][0],offsetdata[x][rotationdx][1]])
+        fx = np.subtract(bx,cx)
+       # print(fx)
+        if rotatevalid():
+            canrotate = True
+            break
+    print(fx)
+    return canrotate
 
 def rotate(right):
-    def rotatevalid(points,offset):
-        for x in range(4):
-            #for y in range(2):
-            px = points[0]
-            py = points[1]
-            if not offset:
-                px /= size
-                py /= size
-           # print(px)
-            if shapepoints[degree][shapetype][x] // 4 + py / size > boardheight - 1:
-               # print("1")
-                return False
-            if shapepoints[degree][shapetype][x] % 4 + px + 2 < -1 or shapepoints[degree][shapetype][x] % 4 + px + 1 > 7:
-               # print("2")
-                return False
-            #if board[shapepoints[shapetype][x] // 4 + py][
-                #shapepoints[shapetype][x] % 4 + 3 + dx] < 0:
-                #print("3")
-                #return False
-           # if board[shapepoints[shapetype][x] // 4 + dy][
-               # shapepoints[shapetype][x] % 4 + 3 + px] < 0:
-               # print(px)
-                #return False
-        return True
-    def offset():
-        global rotationdx,canrotate,fx
-        lastdx = rotationdx
-        if rotation == 1:
-            rotationdx += 1
-        else:
-            rotationdx -= 1
-        rotationdx = rotationdx % 4
-        offsetdata = []
-        if shapetype == 3:
-            offsetdata = offsetI
-        else:
-            offsetdata = offsetnormal
-        for x in range(5):
-            bx = offsetdata[x][lastdx]
-            cx = offsetdata[x][rotationdx]
-            fx = np.subtract(bx,cx)
-            #fx = np.expand_dims(fx, axis=0)
-
-            if rotatevalid(fx, True):
-                canrotate = True
-                break
-        return canrotate
-    global degree
+    global degree,fx,dx
     rotation = 1
     if shapetype == 0:
         return
     if right:
-        for x in range(shapepoints[degree][shapetype][3] // 4 + dy-1,shapepoints[degree][shapetype][3] // 4 + dy + 3):
-            for y in range(shapepoints[degree][shapetype][3] % 4 + dx,shapepoints[degree][shapetype][3] % 4 + dx + 5):
-                if board[x][y] == shapetype + 1:
+        for x in range(boardheight):
+            for y in range(boardwidth):
+                if board[x][y] > 0:
                     board[x][y] = 0
+        #for x in range(4):
+            #board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]] = 0
+           # print(board)
             #board[shapepoints[shapetype][x] % 4 + dx + 3][shapepoints[shapetype][x] // 4 + dy] = 10
         #print(board)
         for x in range(4):
-            newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3) * size
-            newy = (shapepoints[degree][shapetype][x] // 4 + dy) * size
+            newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0]) * size
+            newy = (shapepoints[degree][shapetype][x] // 4 + dy + fx[1]) * size
 
             a = np.array([[newx], [newy]])
-            p = np.array([[(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] % 4 + dx + 3) * size],
-                          [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy) * size]])
+            p = np.array([[(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] % 4 + dx + 3 + fx[0]) * size],
+                          [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy + fx[1]) * size]])
            # print(p)
             a = a - p
             b = np.array([[0, -1], [1, 0]])
@@ -282,17 +319,20 @@ def rotate(right):
                 if degree == 0:
                     c[1][0] += 40
                 elif degree == 1:
-                    c[0][0] += 40
-                    c[1][0] += 40
+                    c[0][0] -= 40
                 elif degree == 2:
                     c[0][0] -= 40
+                elif degree == 3:
+                    c[1][0] -= 40
           #  print(c[1][0])
-            board[int(c[1][0] / 40)][int(c[0][0] / 40)] = shapetype + 1
-            if offset():
-                canvas.delete(shapes[x])
-                shapes[x] = canvas.create_image(c[0][0], c[1][0], anchor=NW,
-                                                image=shapesimg[shapetype])
-    #print(board)
+            board[int((c[1][0])/ 40)][int((c[0][0])/ 40)] = shapetype + 1
+           # print(board)
+            #if offset():
+            canvas.delete(shapes[x])
+            shapes[x] = canvas.create_image(c[0][0], c[1][0], anchor=NW,
+                                            image=shapesimg[shapetype])
+    print(board)
+    #fx = np.array([0, 0])
     degree = (degree + 1) % 4
 
 def valid(dir): #up,down,left,right
@@ -308,17 +348,18 @@ def valid(dir): #up,down,left,right
 
     a = 0
     for x in range(4):
-        if shapepoints[degree][shapetype][x] // 4 + py > boardheight - 1:
-           # print("1")
+        if shapepoints[degree][shapetype][x] // 4 + py + fx[1] > boardheight - 1:
+            print("1")
             return False
-        if shapepoints[degree][shapetype][x] % 4 + px + 2 < -1 or shapepoints[degree][shapetype][x] % 4 + px + 1 > 7:
-          #  print("2")
+        if shapepoints[degree][shapetype][x] % 4 + px + 2 + fx[0]< -1 or shapepoints[degree][shapetype][x] % 4 + px + 1 + fx[0] > 7:
+            print(board)
+            print("2")
             return False
-        if (dir == 0 or dir == 1) and board[shapepoints[degree][shapetype][x] // 4 + py][shapepoints[degree][shapetype][x] % 4 + 3 + dx] < 0:
-           # print("3")
+        if (dir == 0 or dir == 1) and board[shapepoints[degree][shapetype][x] // 4 + py + fx[1]][shapepoints[degree][shapetype][x] % 4 + 3 + dx + fx[0]] < 0:
+            print("3")
             return False
-        if (dir == 2 or dir == 3) and board[shapepoints[degree][shapetype][x] // 4 + dy][shapepoints[degree][shapetype][x] % 4 + 3 + px] < 0:
-           # print(px)
+        if (dir == 2 or dir == 3) and board[shapepoints[degree][shapetype][x] // 4 + dy + fx[1]][shapepoints[degree][shapetype][x] % 4 + 3 + px + fx[0]] < 0:
+            print(px)
             return False
     return True
 
@@ -341,6 +382,9 @@ def hold(event):
             canvas.delete(s)
         newshape(None,True)
 
+def x(event):
+    global fx
+    fx = np.array([0, 0])
 wwidth = 600
 wheight = 800
 win = Tk()
@@ -349,7 +393,7 @@ win.resizable(0,0)
 canvas = Canvas(win, width=wwidth, height = wheight,bg = "gray",borderwidth=0,highlightthickness=0)
 win.bind('<Key>', move)
 win.bind("c", hold)
-win.bind('<space>', newshape)
+win.bind('<space>', x)
 canvas.pack()
 
 boardwidth = 10
@@ -361,13 +405,16 @@ dy = 0
 toplayerblock = False
 shapetype = random.randint(0,6)
 nextshape = random.randint(0,6)
-delay = 1000
+delay = 750
 degree = 0
 holdshape = None
 held = False
 rotationdx = 0
 canrotate = False
 fx = np.array([0,0])
+fxx = fx
+print(fx)
+offsetrotate = 0
 score = 0
 totalrowsfilled = 0
 level = 1
@@ -398,7 +445,7 @@ shapesimg = [
 shapepoints = [[[1,2,5,6], #O
                [1,2,4,5], #S
                [1,4,5,6],#T
-               [0,1,2,3],#I
+               [4,5,6,7],#I
                [0,1,5,6],#Z
                [2,4,5,6],#L
                [0,4,5,6]],#J
@@ -412,7 +459,7 @@ shapepoints = [[[1,2,5,6], #O
                [[1,2,5,6],#O
                 [5,6,8,9],#S
                 [4,5,6,9],#T
-                [4,5,6,7],#I
+                [8,9,10,11],#I
                 [4,5,9,10],#Z
                 [4,5,6,8],#L
                 [4,5,6,10]],#J
@@ -466,7 +513,7 @@ imagenext = ImageTk.PhotoImage(Image.open("next.jpg"))
 canvas.create_image(500,320,image=imagenext)
 imagehold = ImageTk.PhotoImage(Image.open("hold.jpg"))
 canvas.create_image(500,50,image=imagehold)
-win.after(int(delay),downinput,False)
+#win.after(int(delay),downinput,False)
 #print(board)
 
 popsize = 10
