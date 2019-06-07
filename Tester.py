@@ -1,17 +1,10 @@
 from __future__ import absolute_import, division, print_function
 from tkinter import *
 import numpy as np
-import time
-import math
-from PIL import Image, ImageTk
-#import pyautogui
 import random
 from PIL import Image, ImageTk
 import json
 
-#version: 1.5
-#fix hold bug
-#work on ai
 
 def newshape(holding):
     global shapes,dy,dx,shapetype,board,nextshape,nextshapes,shapeboard,held,holdshapes,gameplaying,degree,score,totalrowsfilled,level,delay,fx,fxx
@@ -41,7 +34,7 @@ def newshape(holding):
                         canvas.delete(shapeboard[r][c])
                 shapeboard = np.delete(shapeboard,x,0)
                 newrow2 = np.ndarray((1,boardwidth),dtype=PhotoImage)
-                shapeboard = np.concatenate((newrow2,shapeboard),axis=0)
+                shapeboard = np.concatenate((newrow2,shapeboard),axis=0) # I looked on stackoverflow on how to delete rows from array
                 #print(shapeboard)
                 board = np.delete(board,x,0)
                 newrow = np.zeros((1,boardwidth))
@@ -118,13 +111,13 @@ def rowfilled(row):
 def updatelevel():
     global levelimage
     canvas.delete(levelimage)
-    levelimage = canvas.create_text(500,650,fill="darkblue",font="Times 20 italic bold",
+    levelimage = canvas.create_text(500,650,font="Times 20 italic bold", #I took this off of stackoverflow
                         text=str(level))
 
 def updatescore():
     global scoreimage
     canvas.delete(scoreimage)
-    scoreimage = canvas.create_text(500,750,fill="darkblue",font="Times 20 italic bold",
+    scoreimage = canvas.create_text(500,750,font="Times 20 italic bold", #same thing as above
                         text=str(score))
 def move(event):
     global i,dy,dx,degree,fx,rotation
@@ -170,7 +163,7 @@ def downinput(pressed):
         shapes[x] = canvas.create_image((shapepoints[degree][shapetype][x] % 4 + dx + 3 +fxx[0]+ fx[0]) * size, (shapepoints[degree][shapetype][x] // 4 + dy+fxx[1] + fx[1]) * size, anchor=NW,
                              image=shapesimg[shapetype])
     if not pressed:
-        win.after(int(delay),downinput,False)
+        win.after(int(delay),downinput,False) #stackoverflow window bind repeat/loop
    # print(board)
 
 def leftinput():
@@ -220,15 +213,15 @@ def rotatevalid():#points,offset):
     if shapetype == 0:
         return
     for x in range(4):
-        newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0] + fxx[0]) * size
-        newy = (shapepoints[degree][shapetype][x] // 4 + dy + fx[1] + fxx[1]) * size
+        newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 + fx[0] + fxx[0]) * size #from here to the last comment was code I converted from the Tetris rotation video to python
+        newy = (shapepoints[degree][shapetype][x] // 4 + dy + fx[1] + fxx[1]) * size #i looked on stackoverflow for numpy array code
         a = np.array([[newx], [newy]])
         p = np.array([[(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] % 4 + dx + 3 + fx[0] + fxx[0]) * size],
                       [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy + fx[1] + fxx[1]) * size]])
         # print(p)
         a = a - p
-        b = np.array([[0, -1 * rotation], [1 * rotation, 0]])
-        c = np.dot(b, a) + p
+        b = np.array([[0, -1 * rotation], [1 * rotation, 0]]) #matrix from video
+        c = np.dot(b, a) + p # hereeeeeeeeeeeeeeeeeeeeeeeeeeee
         if shapetype == 3:
             if degree == 0:
                 c[1][0] += 40
@@ -246,23 +239,23 @@ def rotatevalid():#points,offset):
             return False
     return True
 
-def offset():
+def offset(): #this is mostly from video
     global rotationdx,canrotate,fx,dx,fxx
     if shapetype == 0:
         return
-    canrotate = False
-    lastdx = degree
-    rotationdx = (degree + 1 * rotation) % 4
+    canrotate = False #not mine
+    lastdx = degree #not mine
+    rotationdx = (degree + 1 * rotation) % 4 #not mine
    # print("attempting offset")
     #fx = np.array([0, 0])
   #  print(degree)
    # print(fx)
     fxx += fx
-    if shapetype == 3:
-        offsetdata = offsetI
+    if shapetype == 3: #this too
+        offsetdata = offsetI #and this
     else:
-        offsetdata = offsetnormal
-    for x in range(5):
+        offsetdata = offsetnormal #and this
+    for x in range(5): #this whole loop isnt mine
         bx = np.array([offsetdata[x][lastdx][0],offsetdata[x][lastdx][1]])
         #print(bx)
         cx = np.array([offsetdata[x][rotationdx][0],offsetdata[x][rotationdx][1]])
@@ -295,16 +288,16 @@ def rotate():
         #board[shapepoints[shapetype][x] % 4 + dx + 3][shapepoints[shapetype][x] // 4 + dy] = 10
     #print(board)
     for x in range(4):
-        newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 +fxx[0] + fx[0]) * size
-        newy = (shapepoints[degree][shapetype][x] // 4 + dy + fxx[1] +fx[1]) * size
+        newx = (shapepoints[degree][shapetype][x] % 4 + dx + 3 +fxx[0] + fx[0]) * size #not my idea
+        newy = (shapepoints[degree][shapetype][x] // 4 + dy + fxx[1] +fx[1]) * size #from video
 
-        a = np.array([[newx], [newy]])
+        a = np.array([[newx], [newy]]) #from video
         p = np.array([[(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] % 4 + dx + 3 +fxx[0]+ fx[0]) * size],
-                      [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy +fxx[1] + fx[1]) * size]])
+                      [(shapepoints[degree][shapetype][pivotpoints[shapetype - 1][degree] - 1] // 4 + dy +fxx[1] + fx[1]) * size]]) #from video
        # print(p)
-        a = a - p
-        b = np.array([[0, -1 * rotation], [1 * rotation, 0]])
-        c = np.dot(b, a) + p
+        a = a - p #from video
+        b = np.array([[0, -1 * rotation], [1 * rotation, 0]]) #from video
+        c = np.dot(b, a) + p #from video
         if shapetype == 3:
             if degree == 0:
                 c[1][0] += 40
@@ -371,7 +364,7 @@ def hold(event):
 
 def x(event):
     global board
-    moveblocks()
+    evaluate()
 
 def placeblocks(event):
     if board[event.y//40][event.x//40] == 0:
@@ -417,20 +410,20 @@ offsetrotate = 0
 score = 0
 totalrowsfilled = 0
 level = 1
-levelimage = canvas.create_text(500,650,fill="darkblue",font="Times 20 italic bold",
+levelimage = canvas.create_text(500,650,font="Times 20 italic bold", #tooken from the stackoverflow
                         text=str(level))
-scoreimage = canvas.create_text(500,750,fill="darkblue",font="Times 20 italic bold",
+scoreimage = canvas.create_text(500,750,font="Times 20 italic bold", #tooken
                         text=str(score))
 
-board = np.zeros((boardheight,boardwidth))
-shapeboard = np.ndarray((boardheight,boardwidth),dtype=PhotoImage)
+board = np.zeros((boardheight,boardwidth)) #numpy stuff I looked up
+shapeboard = np.ndarray((boardheight,boardwidth),dtype=PhotoImage) #more stuff
 
 for y in range(boardheight):
     canvas.create_line(0,y*(wheight/boardheight), (wheight/boardheight) * (boardwidth),y*(wheight/boardheight))
 for x in range(boardwidth):
     canvas.create_line((x+1) * (wheight/boardheight),0,(x+1)*(wheight/boardheight),wheight)
 
-tiles = Image.open("tiles.jpg")
+tiles = Image.open("tiles.jpg") #I looked up how to import images
 tiles = tiles.resize((280,40), Image.ANTIALIAS)
 shapesimg = [
     ImageTk.PhotoImage(tiles.crop((0,0,size,size))), #O [0]
@@ -441,7 +434,7 @@ shapesimg = [
     ImageTk.PhotoImage(tiles.crop((size * 5,0,size * 6,size))), #L [5]
     ImageTk.PhotoImage(tiles.crop((size * 6,0,size * 7,size))), #J [6]
     ]
-shapepoints = [[[1,2,5,6], #O
+shapepoints = [[[1,2,5,6], #O #coordinate system I took from C++ video
                [1,2,4,5], #S
                [1,4,5,6],#T
                [4,5,6,7],#I
@@ -475,20 +468,20 @@ for x in range(4):
     shapes.append(canvas.create_image((shapepoints[0][shapetype][x] % 4 + 3) * size,shapepoints[0][shapetype][x] // 4* size,anchor=NW,image= shapesimg[shapetype]))
     board[shapepoints[0][shapetype][x] // 4][shapepoints[0][shapetype][x] % 4 + 3] = shapetype + 1
 
-pivotpoints = [[4,2,1,3], #S
+pivotpoints = [[4,2,1,3], #S #I got idea of pivot points from tetris rotation video
                [3,2,2,3],#T
                [3,3,3,3],#I
                [3,2,2,3],#Z
                [3,2,2,3],#L
                [3,3,2,2]#J
 ]
-offsetnormal = [[(0,0),(0,0),(0,0),(0,0)],
+offsetnormal = [[(0,0),(0,0),(0,0),(0,0)], #tetris rotation video the long
                 [(0,0),(1,0),(0,0),(-1,0)],
                  [(0,0),(1,1),(0,0),(-1,1)],
                  [(0,0),(0,-2),(0,0),(0,-2)],
                  [(0,0),(1,-2),(0,0),(-1,-2)]]
 
-offsetI =  [[(0,0),(-1,0),(-1,-1),(0,-1)],
+offsetI =  [[(0,0),(-1,0),(-1,-1),(0,-1)], #also from the long video
             [(-1,0),(0,0),(1,-1),(0,-1)],
             [(2,0),(0,0),(-2,-1),(0,-1)],
             [(-1,0),(0,-1),(1,0),(0,1)],
@@ -504,55 +497,90 @@ for x in range(4):
             canvas.create_image((shapepoints[0][nextshape][x] % 4 + 11) * size, (shapepoints[0][nextshape][x] // 4 + 10) * size,
                                 anchor=NW, image=shapesimg[nextshape]))
 #start()
-canvas.create_text(500,600,fill="darkblue",font="Times 20 italic bold",
+canvas.create_text(500,600,font="Times 20 italic bold",
                         text="Level")
-canvas.create_text(500,700,fill="darkblue",font="Times 20 italic bold",
+canvas.create_text(500,700,font="Times 20 italic bold",
                         text="Score")
 imagenext = ImageTk.PhotoImage(Image.open("next.jpg"))
 canvas.create_image(500,320,image=imagenext)
 imagehold = ImageTk.PhotoImage(Image.open("hold.jpg"))
 canvas.create_image(500,50,image=imagehold)
-#win.after(int(delay),downinput,False)
+win.after(int(delay),downinput,False)
 #print(board)
 
-popsize = 10
-generation = 1
-mutrate = 0.05
-data = {}
+popsize = 50 ##########################################I wish I spent more time on this AI. It would've been cool but I spent soooo much time bugfixing the game also this is taken from video
+generation = 1 #took from AI video
+mutrate = 0.02
+data = {} #look uped how to do JSON file stuff
 startboard = np.zeros((boardheight,boardwidth))
-generationindex = 0
-maxmoves = 500
-fitness = 0
-
-
-def createchildren():
+generationindex = 0 #Took from video
+maxmoves = 500 #took
+fitness = 0 #took
+parents = []
+fit = 0
+def createchildren(): #took this method
     global data
+    usechildren = False
     data['population'] = []
-    for x in range(popsize):
-        data['population'].append({
-            'id': random.random(),
-            'generation': generation,
-            'rowsfilled': random.random(),
-            'totalheightcols': random.random() - 0.5,
-            'numholes': random.random() * 0.5,
-            'rigidness': random.random() - 0.5,
-            'fitness': 0
-        })
+    if usechildren:
+        usechild()
+    else:
+        for x in range(popsize): #this loop has stuff from the AI website and video
+            data['population'].append({
+                'id': random.random(), #video
+                'generation': generation, #video
+                'rowsfilled': random.random(), #video
+                'totalheightcols': random.random() - 0.5, #website
+                'numholes': random.random() - 0.5, #website
+                'rigidness': random.random() - 0.5, #both
+                'fitness': 0
+            })
     with open('data.json', 'w') as outfile:
         json.dump(data, outfile, indent=1)
     evaluate()
 
+def usechild():
+    global data,generation
+    for x in range(5):
+        data['population'].append({
+            'id': 0.8836908404702061,
+            'generation': 26,
+            'rowsfilled': 0.030591430497130742,
+            'totalheightcols': 0.006961037706044365,
+            'numholes': 0.0205583135684244,
+            'rigidness': -0.007101190397666102,
+            'fitness': 0
+        })
+        data['population'].append({
+            'id': 0.4660794728013691,
+            'generation': 33,
+            'rowsfilled': 0.03370574434981557,
+            'totalheightcols': 0.024891259604550138,
+            'numholes': 0.000688213250719727,
+            'rigidness': 0.020569918960131953,
+            'fitness': 0
+        })
+    with open('data.json', 'w') as outfile:
+        json.dump(data, outfile, indent=1)
+    #for x in range(50):
+    evaluate()
+
+
+def ai(event):
+    moveblocks()
+
+win.bind("a", ai)
 def getrowsfilled():
     return totalrowsfilled + 1
 
-def gettotalheightcols():
+def gettotalheightcols(): #this method is taken from the website's source code
     totalheight = 0
     for x in range(boardwidth):
         for y in range(boardheight):
             if board[y][x] < 0:
                 totalheight += 1
     return totalheight
-def getnumholes():
+def getnumholes(): #this method is also taken from source code
     numholes = 0
     for y in range(boardwidth):
         hashole = False
@@ -563,7 +591,7 @@ def getnumholes():
                 numholes += 1
     return numholes
 
-def getrigidness():
+def getrigidness(): #taken from website also
 
     def getcolheight(col):
         height = 0
@@ -578,16 +606,16 @@ def getrigidness():
     return rigidness
 def getallmoves():
     global board,shapes,dy,dx,fx,fxx,degree,score,fitness,shapeboard
-    moverating = 0
-    bestmove = -69696969
-    testboard = board.copy()
-    testshapes = shapes.copy()
+    moverating = 0 #Takaen from website
+    bestmove = -69696969 #taken from website
+    testboard = board.copy() #stackoverflow
+    testshapes = shapes.copy() #same as above
     savedscore = score
     fitness = score
     moveset = []
    # print(moveset.shape)
-    for rotations in range(4):
-        for x in range(-5,5):
+    for rotations in range(4): #this whole loop is taken from AI video
+        for x in range(-5,6):
             board = testboard.copy()
             for k in range(rotations):
                 rotate()
@@ -607,6 +635,8 @@ def getallmoves():
             moverating += gettotalheightcols() * totalheightcols
             moverating += getnumholes() * numholes
             moverating += getrigidness() * rigidness
+            if not gameplaying:
+                moverating -= 500
             if moverating > bestmove:
                 bestmove = moverating
                 moveset = [rotations,x]
@@ -615,12 +645,12 @@ def getallmoves():
             #print(bestmove)
         #print(board)
     board = testboard.copy()
-    dy = 0
-    dx = 0
-    fxx = np.array([0,0])
-    fx = np.array([0,0])
-    degree = 0
-    shapeboard = np.ndarray((boardheight, boardwidth), dtype=PhotoImage)
+    dy = 0#this is reset feature that I kinda took and recoded
+    dx = 0 #
+    fxx = np.array([0,0]) #
+    fx = np.array([0,0]) #
+    degree = 0 #
+    shapeboard = np.ndarray((boardheight, boardwidth), dtype=PhotoImage) #
     score = savedscore
    # shapes = testshapes
     #newshape(False)
@@ -639,7 +669,7 @@ def moveblocks():
     while valid(1):
         downinput(True)
     newshape(False)
-def restartgame():
+def restartgame(): #idea taken from AI video
     global board,dy,dx,fxx,fx,degree,gameplaying,score,shapeboard
     board = startboard.copy()
     dy = 0
@@ -650,21 +680,52 @@ def restartgame():
     score = 0
     gameplaying = True
     shapeboard = np.ndarray((boardheight, boardwidth), dtype=PhotoImage)
+#def mutate():
+ #   if random.random < mutrate
+def mate(): #taken from video
+    def getrandomparengenes(): #from AI video
+        num = random.randint(0,1)
+        if num == 1:
+            return 1
+        else:
+            return 0
 
-def mate():
-    global data
-    fit = 0
+    global data,fit
+    yourmom = []
+    yourdad = []
+    mychildren = []
     with open("data.json", "r") as p:
-        for s in p:
-            if int(s['fitness']) > fit:
-                fit = int(s['fitness'])
-                print(fit)
+        temp = json.load(p)
+    for x in range(popsize): ##Idea came from video but I couldn't code it myself
+        print(x - 1 + (generation - 2) * 10)
+        if int(temp['population'][x + (generation - 2) * 10]['fitness']) > fit:
+            fit = int(temp['population'][x  + (generation - 2) * 10]['fitness'])
+            print(fit)
+            parents.append(x - 1 + (generation - 2) * 10)
+    for x in range(popsize):#writing json stuff from stackoverflow
+        temp['population'].append({
+            'id': random.random(),
+            'generation': generation,
+            'rowsfilled': temp['population'][len(parents) - 1 - getrandomparengenes()]['rowsfilled'] * mutrate,
+            'totalheightcols': temp['population'][len(parents) - 1 - getrandomparengenes()]['totalheightcols'] * mutrate,
+            'numholes': temp['population'][len(parents) - 1 - getrandomparengenes()]['numholes'] * mutrate,
+            'rigidness': temp['population'][len(parents) - 1 - getrandomparengenes()]['rigidness'] * mutrate,
+            'fitness': 0
+        })
+        #print(temp['population'][x+10])
+    with open("data.json", "w") as p: #stackoverflow
+        json.dump(temp, p,indent=1)
+    print(parents)
+    data = temp
+
 def evaluate():
-    global rowsfilled,totalheightcols,numholes,rigidness,data,fitness,generationindex
+    global rowsfilled,totalheightcols,numholes,rigidness,data,fitness,generationindex,generation
    # print(shapeboard)
-    if generationindex == popsize:
+    if generationindex % popsize == 0 and generationindex != 0:
         print("Generation done")
+        generation += 1
         mate()
+    if generation == 500:
         return
     print("Poplation" + str(generationindex))
 
@@ -676,9 +737,9 @@ def evaluate():
     while gameplaying:
         moveblocks()
     restartgame()
-    with open("data.json", "r") as p: #
+    with open("data.json", "r") as p: # #stackoverflow/website reading json file
         tempdata = json.load(p)
-    print(tempdata)
+   # print(tempdata['population'][generationindex])
 
     tempdata['population'][generationindex]['fitness'] = fitness
     with open("data.json", "w") as p:
@@ -687,10 +748,10 @@ def evaluate():
     print(tempdata['population'][generationindex]['fitness'])
     generationindex += 1
     evaluate()
-rowsfilled = 0
+rowsfilled = 0 #variables from AI video and website
 totalheightcols = 0
 numholes = 0
 rigidness = 0
 
-createchildren()
+#createchildren()
 win.mainloop()
